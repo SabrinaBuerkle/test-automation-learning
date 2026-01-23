@@ -27,7 +27,12 @@ def validate_testcases(testcases: list[dict]) -> None:
             try:
                 testcase[key]
             except:
-                raise ValueError("Key " + key + " doesn´t exist in testcase " + testcase.get("name"))
+                if testcase.get("name") != None:
+                    raise ValueError("Key " + key + " doesn´t exist in testcase " + testcase.get("name"))
+                elif testcase.get("id") != None:
+                    raise ValueError("Key " + key + " doesn´t exist in testcase " + str(testcase.get("id")))
+                else:
+                    raise ValueError("Key " + key + " doesn´t exist in one of the testcases in the given list")
                 
 
     
