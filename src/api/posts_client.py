@@ -1,31 +1,43 @@
 import requests
 
 class PostsClient:
-    def __init__(self, base_url: str):
+    def __init__(self, base_url: str, max_retries=1):
         self.base_url = base_url.rstrip("/")
+        self.max_retries = max_retries
+        self.timeout = 5
 
 
     def _get(self, url: str) -> requests.Response:
-        try:
-            response = requests.get(url, timeout=5)
-            return response
+
+        last_exception = None
+
+        for attempt in range(1, self.max_retries+1):
+            try:
+                response = requests.get(url, timeout=self.timeout)
+
+                if response.status_code == 404:
+                    raise ValueError(f"Post list or post ID with requested URL not found")
+                
+                if 500 <= response.status_code < 600:
+                    raise RuntimeError(f"Server error: {response.status_code}")
+
+                response.raise_for_status()
+
+                if not response.headers.get("Content-Type", "").startswith("application/json"):
+                    raise TypeError("Response is not JSON")
+
+                return response
+            
+            except(requests.exceptions.Timeout, requests.exceptions.ConnectionError, RuntimeError) as exc:
+                last_exception = exc
+         
+        raise RuntimeError(f"Request failed after {attempt} retries: {last_exception}") from last_exception
         
-        except requests.exceptions.Timeout:
-            raise RuntimeError("Request timed out")
-        
-        except requests.exceptions.ConnectionError:
-            raise RuntimeError("Connection failed")
         
 
     def get_post_list(self) -> requests.Response:
 
         response = self._get(f"{self.base_url}/posts")
-
-        if response.status_code == 404:
-            raise ValueError(f"Post list in requested URL not found")
-        
-        if not response.headers.get("Content-Type", "").startswith("application/json"):
-            raise TypeError("Response is not JSON")
         
         return response
 
@@ -33,13 +45,5 @@ class PostsClient:
     def get_post_by_id(self, post_id: int) -> requests.Response:
         
         response = self._get(f"{self.base_url}/posts/{post_id}")
-                 
-        if response.status_code == 404:
-            raise ValueError(f"Post with id {post_id} not found")
-
-        response.raise_for_status()
-
-        if not response.headers.get("Content-Type", "").startswith("application/json"):
-            raise TypeError("Response is not JSON")
 
         return response
