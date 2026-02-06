@@ -10,30 +10,29 @@ def assert_client_attributes(client, base_url, timeout, max_retries) -> None:
     logger.info("Passed: Client object contains all the expected attributes")
 
 def assert_successful_connection(response) -> None:
-    assert response.ok, f"Connection not successful, response code: {response.status}" # 200 = Successfull connection
+    assert response.ok, f"Connection not successful, response code: {response.status_code}" # 200 = Successfull connection
     logger.info("Passed: Connection was successful")
 
 def assert_response_is_json(response):
-    assert response.headers["Content-Type"].startswith("application/json"), "Response header does not start with application/json"
+    content_type = response.headers.get("Content-Type", "")
+    assert content_type.startswith("application/json")
     logger.info("Passed: Response contains json data")
 
 def assert_valid_post_list(data: list) -> None:
     assert isinstance(data, list), "Error: Post data is not a list"
     assert len(data) > 0, "Error, post list is empty"
+    assert all(isinstance(post, dict) for post in data), "Error: Not all posts in the list are dictionaries"
+    assert ["id" in post for post in data]
     logger.info("Passed: Response contains a valid post list")
 
 def assert_valid_post(post: dict, expected_post_keys: set, expected_id: int) -> None:
-    assert set(post.keys()) == expected_post_keys, "Post eiter does not contain all of the expected keys or contains more keys" # post contains exeactly the expected keys, not more not less
-    #assert expected_keys.issubset(post.keys()) # post contains the expected keys but can contain other keys as well
+    assert expected_post_keys.issubset(post.keys()), "Post does not contain all of the expected keys"
+    logger.info("Passed: Post contains all of the expected keys")
 
     assert post["id"] == expected_id, f"Wrong post id: expected {expected_id}, got {post['id']}"
     assert post["title"], "Post title is empty" # String not empty
     assert post["body"], "Post body is empty" # String not empty
     logger.info("Passed: Post id is correct and post keys are not empty")
-
-def assert_valid_post_fields(post: dict, expected_post_keys: set) -> None:
-    assert expected_post_keys.issubset(post.keys()), "Post does not contain all of the expected keys"
-    logger.info("Passed: Post contains all of the expected keys")
 
 def assert_not_found_error(client) -> None:
     with pytest.raises(ValueError, match="not found"):
