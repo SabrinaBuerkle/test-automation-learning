@@ -25,13 +25,17 @@ def assert_valid_post_list(data: list) -> None:
     assert ["id" in post for post in data]
     logger.info("Passed: Response contains a valid post list")
 
-def assert_valid_post(post: dict, expected_post_keys: set, expected_id: int) -> None:
+def assert_valid_post(post, expected_post_keys: set, expected_id: int) -> None:
     assert expected_post_keys.issubset(post.keys()), "Post does not contain all of the expected keys"
     logger.info("Passed: Post contains all of the expected keys")
 
-    assert post["id"] == expected_id, f"Wrong post id: expected {expected_id}, got {post['id']}"
-    assert post["title"], "Post title is empty" # String not empty
-    assert post["body"], "Post body is empty" # String not empty
+    assert post.id == expected_id, f"Wrong post id: expected {expected_id}, got {post.id}"
+    assert isinstance(post.userId, int), "Invalid User Id"
+    assert isinstance(post.title, str), "Post title is not a string"
+    assert post.title, "Post title is empty"
+    assert isinstance(post.body, str), "Post body is not a string"
+    assert post.body, "Post body is empty"
+
     logger.info("Passed: Post id is correct and post keys are not empty")
 
 def assert_not_found_error(client) -> None:

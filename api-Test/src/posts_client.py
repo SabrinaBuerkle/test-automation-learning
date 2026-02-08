@@ -1,11 +1,14 @@
 import requests
+from pydantic import ValidationError
 
 from tests.helpers.logger import get_logger
+from src.models import Post
 
 logger = get_logger(__name__)
 
 class PostsClient:
     def __init__(self, base_url: str, timeout: int = 5, max_retries: int = 1):
+
         self.base_url = base_url.rstrip("/")
         self.max_retries = max_retries
         self.timeout = timeout
@@ -46,8 +49,10 @@ class PostsClient:
 
         logger.info("Getting post list...")
         response = self._get(f"{self.base_url}/posts")
-
-        return response
+        try:
+            return Post.model_validate(response.json())
+        except ValidationError as exc:
+            raise ValueError("Invalid post schema") from exc
 
 
     def get_post_by_id(self, post_id: int) -> requests.Response:
