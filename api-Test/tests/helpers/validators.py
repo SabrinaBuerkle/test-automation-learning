@@ -1,5 +1,8 @@
 import pytest
+
 from tests.helpers.logger import get_logger
+
+from src.exceptions import NotFoundError, InvalidResponseError, InvalidSchemaError, RetryableError, ServerError
 
 logger = get_logger(__name__)
 
@@ -25,39 +28,50 @@ def assert_valid_post_list(data: list) -> None:
     assert ["id" in post for post in data]
     logger.info("Passed: Response contains a valid post list")
 
-def assert_valid_post(post, expected_post_keys: set, expected_id: int) -> None:
-    assert expected_post_keys.issubset(post.keys()), "Post does not contain all of the expected keys"
+def assert_valid_post(data, expected_post_keys: set, expected_id: int) -> None:
+    assert expected_post_keys.issubset(data.keys()), "Post does not contain all of the expected keys"
     logger.info("Passed: Post contains all of the expected keys")
 
-    assert post.id == expected_id, f"Wrong post id: expected {expected_id}, got {post.id}"
-    assert isinstance(post.userId, int), "Invalid User Id"
-    assert isinstance(post.title, str), "Post title is not a string"
-    assert post.title, "Post title is empty"
-    assert isinstance(post.body, str), "Post body is not a string"
-    assert post.body, "Post body is empty"
+    assert data["id"] == expected_id, f"Wrong post id: expected {expected_id}, got {data['id']}"
+    assert isinstance(data["userId"], int), "Invalid User Id"
+    assert isinstance(data["title"], str), "Post title is not a string"
+    assert data["title"], "Post title is empty"
+    assert isinstance(data["body"], str), "Post body is not a string"
+    assert data["body"], "Post body is empty"
+
+    # assert post.id == expected_id, f"Wrong post id: expected {expected_id}, got {post.id}"
+    # assert isinstance(post.userId, int), "Invalid User Id"
+    # assert isinstance(post.title, str), "Post title is not a string"
+    # assert post.title, "Post title is empty"
+    # assert isinstance(post.body, str), "Post body is not a string"
+    # assert post.body, "Post body is empty"
 
     logger.info("Passed: Post id is correct and post keys are not empty")
 
-def assert_not_found_error(client) -> None:
-    with pytest.raises(ValueError, match="not found"):
-        client.get_post_by_id(1)
-    logger.info("Passed: Not found error was raised correctly")
+def assert_get_post_by_id_NotFoundError(client) -> None:
+    with pytest.raises(NotFoundError, match="not found"):
+        client.get_post_by_id(99999)
+    logger.info("Passed: NotFoundError was raised correctly")
 
-def assert_type_error(client) -> None:
-    with pytest.raises(TypeError):
+def assert_get_post_by_id_InvalidResponseError(client) -> None:
+    with pytest.raises(InvalidResponseError):
         client.get_post_by_id(1)
-    logger.info("Passed: TypeError was raised correctly")
+    logger.info("Passed: InvalidResponseError was raised correctly")
 
-def assert_server_error(client) -> None:
-    with pytest.raises(RuntimeError, match = "Server error"):
+def assert_get_post_by_id_RetryableError(client, error_text: str) -> None:
+    with pytest.raises(RetryableError, match = error_text):
         client.get_post_by_id(1)
-    logger.info("Passed: Server error was detected correctly")
+    logger.info("Passed: RetryableError was detected correctly")
 
-def assert_runtime_error(client, max_retries) -> None:
-    match_str = f"failed after {max_retries} retries"
-    with pytest.raises(RuntimeError, match = match_str):
+def assert_get_post_by_id_InvalidSchemaError(client):
+    with pytest.raises(InvalidSchemaError, match = "Invalid post schema"):
         client.get_post_by_id(1)
-    logger.info("Passed: Runtime error was raised correctly")
+    logger.info("Passed: InvalidSchemaError error was raised correctly")
+
+def assert_get_post_list_InvalidSchemaError(client):
+    with pytest.raises(InvalidSchemaError, match = "Invalid post schema"):
+        client.get_post_list()
+    logger.info("Passed: InvalidSchemaError error was raised correctly")
 
 
 

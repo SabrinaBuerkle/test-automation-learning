@@ -65,7 +65,7 @@ def mocked_positive_response_get(mocker):
     return _fake_get
 
 @pytest.fixture
-def mocked_server_error_get(mocker):
+def mocked_ServerError_get(mocker):
     def _fake_get(*args, **kwargs):
         logger.info("Creating fake response with server error...")
 
@@ -77,7 +77,7 @@ def mocked_server_error_get(mocker):
     return _fake_get
 
 @pytest.fixture
-def mocked_not_found_error_get(mocker):
+def mocked_NotFoundError_get(mocker):
     def _fake_get(*args, **kwargs):
         logger.info("Creating fake response with status code 404...")
 
@@ -90,7 +90,7 @@ def mocked_not_found_error_get(mocker):
 
 
 @pytest.fixture
-def mocked_value_error_get(mocker):
+def mocked_InvalidResponse_get(mocker):
     def _fake_get(*args, **kwargs):
         logger.info("Creating fake response with missing json data...")
 
@@ -101,6 +101,38 @@ def mocked_value_error_get(mocker):
         return mock_response_value_error
     return _fake_get
 
+
+@pytest.fixture
+def mocked_invalid_post_get(mocker):
+    def _fake_get(*args, **kwargs):
+        logger.info("Creating fake response with invalid post structure...")
+
+        mock_response_invalid_post = mocker.Mock()
+        mock_response_invalid_post.status_code = 200
+        mock_response_invalid_post.headers = {"Content-Type": "application/json"}
+        mock_response_invalid_post.json.return_value = {
+            "userId": 1,
+            "id": 1,
+            # Missing title
+            "body": "Mocked body"}
+
+        return mock_response_invalid_post
+    return _fake_get
+
+
+@pytest.fixture
+def mocked_invalid_post_list_get(mocker):
+    def _fake_get(*args, **kwargs):
+        logger.info("Creating fake invalid posts list...")
+        mock_response = mocker.Mock()
+        mock_response.status_code = 200
+        mock_response.headers = {"Content-Type": "application/json"}
+        mock_response.json.return_value = [
+            {"userId": 1, "id": 1, "title": "Mocked title", "body": "Mocked body"},
+            {"userId": 1, "id": 2, "title": "Mocked title 2"}] # body missing
+
+        return mock_response
+    return _fake_get
 
 
 
