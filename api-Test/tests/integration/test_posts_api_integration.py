@@ -5,27 +5,38 @@ import tests.helpers.actions as act
 from tests.helpers.logger import get_logger
 
 from src.posts_client import PostsClient
-
+from src.http_client import HttpClient
 
 logger = get_logger(__name__)
 
 pytestmark = pytest.mark.api
 pytestmark = pytest.mark.integration
 
+### Test of Http Client ###
 
-def test_get_posts_list_returns_status_code_200(base_url, timeout):
+def test_get_posts_list_returns_status_ok(base_url, timeout):
 
-    client = PostsClient(base_url, timeout)
-    response = client.get_post_list()
+    client = HttpClient(base_url, timeout)
+    response = client.get("posts")
 
     val.assert_successful_connection(response)
 
 
+def test_get_single_post_returns_status_ok(base_url, timeout):
+
+    client = HttpClient(base_url, timeout)
+    response = client.get("posts/1")
+
+    val.assert_successful_connection(response)
+
+
+### Test of Posts Client ###
+
 def test_get_posts_returns_list_of_posts(base_url, timeout):
 
-    client = PostsClient(base_url, timeout)
-    response = client.get_post_list()
-    data = act.get_json_data_from_response(response)
+    client = PostsClient(HttpClient(base_url, timeout))
+    data = client.get_post_list()
+    #data = act.get_json_data_from_response(response)
     
     val.assert_valid_post_list(data)
 

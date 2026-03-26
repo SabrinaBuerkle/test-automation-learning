@@ -6,6 +6,8 @@ import tests.helpers.actions as act
 from tests.helpers.logger import get_logger
 
 from src.posts_client import PostsClient
+from src.http_client import HttpClient
+
 
 
 logger = get_logger(__name__)
@@ -20,7 +22,7 @@ pytestmark = [
 @pytest.mark.smoke
 def test_create_PostsClient_success(base_url, timeout):
 
-    client = PostsClient(base_url, timeout=timeout, max_retries=3)
+    client = HttpClient(base_url, timeout=timeout, max_retries=3)
 
     val.assert_client_attributes(client, base_url=base_url, timeout=timeout, max_retries=3)
 
@@ -30,9 +32,10 @@ def test_get_post_list_success(mocker, mocked_post_list_get, base_url, timeout):
     mock_response = mocked_post_list_get()
     mock_get = mocker.patch("requests.get", return_value = mock_response)
 
-    client = PostsClient(base_url, timeout=timeout)
-    response = client.get_post_list()
-    data = act.get_json_data_from_response(response)
+    http_client = HttpClient(base_url, timeout=timeout)
+    #posts_client = PostsClient(http_client)
+    response = http_client.get("posts")
+    data = response.json()
     
     val.assert_valid_post_list(data)
     mock_get.assert_called_once_with(f"{base_url}/posts", timeout=timeout)
