@@ -1,6 +1,6 @@
-API Test Automation Learning Project
+# API Test Automation Learning Project #
 
------ Overview -----
+## Overview ##
 
 This project is a hands-on learning project for building a clean and maintainable API test automation framework in Python.
 
@@ -18,8 +18,8 @@ The project uses the public API:
 https://jsonplaceholder.typicode.com
 
 
------ Project Structure -----
-
+## Project Structure ##
+```
 project_root/
 │
 ├── src/
@@ -38,32 +38,59 @@ project_root/
 │
 ├── requirements.txt
 └── README.md
+```
 
 
+## Setup ##
 
------ Setup -----
-
-1. Create virtual environment
+### 1. Create virtual environment ###
+``` 
 python -m venv .venv
+```
 
-2. Activate environment
-# Windows:     .venv\Scripts\activate
-# Linux / Mac:  source .venv/bin/activate
+### 2. Activate environment ###
+Windows: 
+``` 
+.venv\Scripts\activate
+```
+Linux / Mac: 
+``` 
+source .venv/bin/activate
+```
 
-3. Install dependencies
+### 3. Install dependencies ###
+``` 
 pip install -r requirements.txt
+```
 
-4. Running Tests
-Run all tests:       pytest -v
-Run only unit tests: pytest tests/api/unit -v
-Run specific file:   pytest tests/api/unit/test_posts_client.py -v
+### 4. Running Tests ###
+Run all tests:       
+``` 
+pytest -v
+```
 
-5. Debugging
-Run with output:  pytest -s
-Use debugger:     import pdb; pdb.set_trace()
+Run only unit tests: 
+``` 
+pytest tests/api/unit -v
+```
+
+Run specific file:   
+``` 
+pytest tests/api/unit/test_posts_client.py -v
+```
+
+### 5. Debugging ###
+Run with output:  
+``` 
+pytest -s
+```
+Use debugger:    
+``` 
+import pdb; pdb.set_trace()
+```
 
 
------ Learning Goals -----
+## Learning Goals ##
 
 This project is designed to build skills in:
 
@@ -74,7 +101,7 @@ This project is designed to build skills in:
 - Handling real-world API edge cases
 
 
------ Next Steps -----
+## Next Steps ##
 
 - Add contract testing
 - Introduce schema validation with Pydantic
