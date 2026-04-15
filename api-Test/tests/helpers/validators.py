@@ -39,13 +39,6 @@ def assert_valid_post(data, expected_post_keys: set, expected_id: int) -> None:
     assert isinstance(data["body"], str), "Post body is not a string"
     assert data["body"], "Post body is empty"
 
-    # assert post.id == expected_id, f"Wrong post id: expected {expected_id}, got {post.id}"
-    # assert isinstance(post.userId, int), "Invalid User Id"
-    # assert isinstance(post.title, str), "Post title is not a string"
-    # assert post.title, "Post title is empty"
-    # assert isinstance(post.body, str), "Post body is not a string"
-    # assert post.body, "Post body is empty"
-
     logger.info("Passed: Post id is correct and post keys are not empty")
 
 def assert_get_post_by_id_NotFoundError(client) -> None:
